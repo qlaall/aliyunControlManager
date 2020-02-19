@@ -3,7 +3,6 @@ package qlaall.service
 import com.aliyuncs.DefaultAcsClient
 import com.aliyuncs.ecs.model.v20140526.*
 import com.aliyuncs.profile.DefaultProfile
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -17,27 +16,32 @@ class EcsAgentService {
     lateinit var secretKey:String
 
     fun getAllInstances():DescribeInstancesResponse{
-        val profile = DefaultProfile.getProfile("cn-zhangjiakou", accessKey, secretKey);
-        val client = DefaultAcsClient(profile);
-        return client.getAcsResponse(DescribeInstancesRequest());
+        val profile = DefaultProfile.getProfile("cn-zhangjiakou", accessKey, secretKey)
+        val client = DefaultAcsClient(profile)
+        return client.getAcsResponse(DescribeInstancesRequest())
     }
 
-    fun stopInstanceByEcsId(instanceId:String):StopInstanceResponse{
-        val profile = DefaultProfile.getProfile("cn-zhangjiakou", accessKey, secretKey);
-        val client = DefaultAcsClient(profile);
+    fun stopInstanceByEcsId(instanceId:String):StopInstanceResponse {
+        val profile = DefaultProfile.getProfile("cn-zhangjiakou", accessKey, secretKey)
+        val client = DefaultAcsClient(profile)
         val s = StopInstanceRequest().apply {
-            this.instanceId=instanceId
+            this.instanceId = instanceId
         }
-        return client.getAcsResponse(s);
+        return client.getAcsResponse(s)
     }
 
-    fun startInstanceByEcsId(instanceId: String):StartInstanceResponse{
-        val profile = DefaultProfile.getProfile("cn-zhangjiakou", accessKey, secretKey);
-        val client = DefaultAcsClient(profile);
+    fun startInstanceByEcsId(instanceId: String):StartInstanceResponse {
+        val profile = DefaultProfile.getProfile("cn-zhangjiakou", accessKey, secretKey)
+        val client = DefaultAcsClient(profile)
         val s = StartInstanceRequest().apply {
-            this.instanceId=instanceId
+            this.instanceId = instanceId
         }
-        return client.getAcsResponse(s);
+        try {
+            return client.getAcsResponse(s)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return StartInstanceResponse()
     }
 
 }
