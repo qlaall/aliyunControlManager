@@ -1,0 +1,5 @@
+server:
+  port: 9999
+aliyun:
+  accessKey: ${ACCESS_KEY}
+  secretKey: ${SECRET_KEY}
