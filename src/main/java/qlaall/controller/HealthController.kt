@@ -9,6 +9,6 @@ import java.util.*
 @RequestMapping("/health")
 class HealthController {
     @GetMapping("")
-    fun setFuncName(){}
+    fun health(){}
 
 }
