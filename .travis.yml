@@ -8,6 +8,8 @@ services:
 
 script:
   - mvn kotlin:compile compile install -DskipTests=true
+  - echo $DOCKER_USERNAME
+  - echo $DOCKER_PASSWORD
   - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
   - docker build -t registry.cn-zhangjiakou.aliyuncs.com/qlaall/mc-server-manager .
   - docker push registry.cn-zhangjiakou.aliyuncs.com/qlaall/mc-server-manager
