@@ -1,4 +1,4 @@
-package qlaall.stateful;
+package qlaall.util;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -27,9 +27,9 @@ import java.util.function.Consumer;
  * 	tired.add(9,ChronoUnit.SECONDS)
  * 	3秒后和9秒后将打印出两个当时的时间。
  */
-public class EventDealer {
-    private static final Logger logger= LoggerFactory.getLogger(EventDealer.class);
-    private static final Map<String, EventDealer> NAMED_SCHEDUAL = new HashMap<>();
+public class SimpleDelayEventManager {
+    private static final Logger logger= LoggerFactory.getLogger(SimpleDelayEventManager.class);
+    public static final Map<String, SimpleDelayEventManager> NAMED_SCHEDUAL = new HashMap<>();
     //事件名称
     private String eventName;
     //事件处理器
@@ -39,26 +39,26 @@ public class EventDealer {
     private BlockingQueue<Void> emptyQueue = new LinkedBlockingQueue<>();
 
     //如果已存在，将会返回旧的
-    public EventDealer(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate) {
-        EventDealer eventDealer = NAMED_SCHEDUAL.get(eventName);
-        if (eventDealer == null) {
+    public SimpleDelayEventManager(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate) {
+        SimpleDelayEventManager simpleDelayEventManager = NAMED_SCHEDUAL.get(eventName);
+        if (simpleDelayEventManager == null) {
             this.eventName = eventName;
             this.eventHandler = o;
             this.redisTemplate = redisTemplate;
-            EventDealer.NAMED_SCHEDUAL.put(eventName, this);
+            SimpleDelayEventManager.NAMED_SCHEDUAL.put(eventName, this);
             Thread thread = new Thread(this::start);
             thread.setDaemon(true);
             thread.start();
         }
     }
     //线程池执行
-    public EventDealer(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate, Executor executor) {
-        EventDealer eventDealer = NAMED_SCHEDUAL.get(eventName);
-        if (eventDealer == null) {
+    public SimpleDelayEventManager(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate, Executor executor) {
+        SimpleDelayEventManager simpleDelayEventManager = NAMED_SCHEDUAL.get(eventName);
+        if (simpleDelayEventManager == null) {
             this.eventName = eventName;
             this.eventHandler = o;
             this.redisTemplate = redisTemplate;
-            EventDealer.NAMED_SCHEDUAL.put(eventName, this);
+            SimpleDelayEventManager.NAMED_SCHEDUAL.put(eventName, this);
             executor.execute(this::start);
         }
     }
@@ -78,7 +78,7 @@ public class EventDealer {
                     int dealCount = 0;
                     for (ZSetOperations.TypedTuple<String> t : set) {
                         if (t.getScore() < now) {
-                            logger.debug("处理EVENT:{}\t Score:{}\t Content:{}",eventName,t.getScore(),t.getValue());
+                            logger.info("处理EVENT:{}\t Score:{}\t Content:{}",eventName,t.getScore(),t.getValue());
                             eventHandler.accept(t.getValue());
                             redisTemplate.opsForZSet().remove(eventName, t.getValue());
                             dealCount++;
@@ -99,8 +99,8 @@ public class EventDealer {
     }
 
     public @Nullable
-    EventDealer get(String schedualName){
-        return EventDealer.NAMED_SCHEDUAL.get(schedualName);
+    SimpleDelayEventManager get(String schedualName){
+        return SimpleDelayEventManager.NAMED_SCHEDUAL.get(schedualName);
     }
     public void add(long delayNum, ChronoUnit timeUnit) {
         OffsetDateTime targetTime = OffsetDateTime.now().plus(delayNum, timeUnit);
