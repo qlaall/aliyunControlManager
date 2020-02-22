@@ -1,6 +1,6 @@
 language: java
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 script: mvn kotlin:compile compile install -DskipTests=true
