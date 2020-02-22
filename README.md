@@ -10,3 +10,5 @@ SECRET_KEY=accessKey对应的secretKey
 SERVER_INSTANCE_ID=具体服务的管理主机
 REDIS_HOST=redis的Host (可选，默认localhost)
 REDIS_PORT=redis的port (可选，默认6379)
+
+travis是失败的，再docker打包之后的体积过大，从travis到阿里云的镜像中心简直不可能，还是需要国内的CI类似的服务才行
