@@ -4,6 +4,9 @@
 编译：
 mvn kotlin:compile conpile package
 
-运行时需要添加两个阿里云的环境变量：
-ACCESS_KEY=xxx;SECRET_KEY=yyy
-
+环境变量解释
+ACCESS_KEY=aliyun具有ECS权限的子用户的accessKey
+SECRET_KEY=accessKey对应的secretKey
+SERVER_INSTANCE_ID=具体服务的管理主机
+REDIS_HOST=redis的Host (可选，默认localhost)
+REDIS_PORT=redis的port (可选，默认6379)

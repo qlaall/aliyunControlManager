@@ -2,8 +2,7 @@ package qlaall.controller
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
-import qlaall.enums.PlayerStatus
-import qlaall.service.PlayerService
+import qlaall.stateful.ServerManager
 
 /**
  * @author qlaall
@@ -13,12 +12,18 @@ import qlaall.service.PlayerService
 @RequestMapping("/player")
 class PlayerController {
     @Autowired
-    lateinit var playerService: PlayerService
+    lateinit var serverManager: ServerManager
     @PostMapping("/status/online")
-    fun updateOnline(@RequestParam("userName")userName:String,
-                     @RequestParam("clientId")clientId:String){
-        playerService.updateStatus(userName, PlayerStatus.ONLINE)
-
+    fun online(@RequestParam("userName")userName:String,
+                     @RequestParam("uuid")uuid:String,
+               @RequestParam("character")character:String){
+        serverManager.setPlayerOnline(userName)
+    }
+    @PostMapping("/status/quit")
+    fun quit(@RequestParam("userName")userName:String,
+             @RequestParam("uuid")uuid:String,
+                     @RequestParam("character")character:String){
+        serverManager.playerOffline(userName)
     }
 
 }

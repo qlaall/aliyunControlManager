@@ -40,8 +40,9 @@ class EcsAgentService {
             return client.getAcsResponse(s)
         } catch (e: Exception) {
             e.printStackTrace()
+            Thread.sleep(50000L)
+            return startInstanceByEcsId(instanceId)
         }
-        return StartInstanceResponse()
     }
 
 }

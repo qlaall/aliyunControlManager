@@ -3,3 +3,11 @@ server:
 aliyun:
   accessKey: ${ACCESS_KEY}
   secretKey: ${SECRET_KEY}
+  serverInstanceId: ${SERVER_INSTANCE_ID}
+spring:
+  application:
+    name: server-machine-control
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    database: 0
