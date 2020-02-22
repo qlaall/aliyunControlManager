@@ -1,6 +1,8 @@
 package qlaall.stateful;
 
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -25,26 +28,38 @@ import java.util.function.Consumer;
  * 	3秒后和9秒后将打印出两个当时的时间。
  */
 public class EventDealer {
+    private static final Logger logger= LoggerFactory.getLogger(EventDealer.class);
     private static final Map<String, EventDealer> NAMED_SCHEDUAL = new HashMap<>();
-    //任务类型名称
-    private String schedualName;
-    //泛型为OffsetDateTime.toString()
+    //事件名称
+    private String eventName;
+    //事件处理器
     private Consumer<String> eventHandler;
     private RedisTemplate<String, String> redisTemplate;
 
     private BlockingQueue<Void> emptyQueue = new LinkedBlockingQueue<>();
 
     //如果已存在，将会返回旧的
-    public EventDealer(String schedualName, Consumer<String> o, RedisTemplate<String, String> redisTemplate) {
-        EventDealer eventDealer = NAMED_SCHEDUAL.get(schedualName);
+    public EventDealer(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate) {
+        EventDealer eventDealer = NAMED_SCHEDUAL.get(eventName);
         if (eventDealer == null) {
-            this.schedualName = schedualName;
+            this.eventName = eventName;
             this.eventHandler = o;
             this.redisTemplate = redisTemplate;
-            EventDealer.NAMED_SCHEDUAL.put(schedualName, this);
+            EventDealer.NAMED_SCHEDUAL.put(eventName, this);
             Thread thread = new Thread(this::start);
             thread.setDaemon(true);
             thread.start();
+        }
+    }
+    //线程池执行
+    public EventDealer(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate, Executor executor) {
+        EventDealer eventDealer = NAMED_SCHEDUAL.get(eventName);
+        if (eventDealer == null) {
+            this.eventName = eventName;
+            this.eventHandler = o;
+            this.redisTemplate = redisTemplate;
+            EventDealer.NAMED_SCHEDUAL.put(eventName, this);
+            executor.execute(this::start);
         }
     }
 
@@ -56,16 +71,19 @@ public class EventDealer {
 
                 boolean shouldAgain = true;
                 while (shouldAgain) {
-                    Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().rangeWithScores(schedualName, 0, 5);
+                    Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().rangeWithScores(eventName, 0, 5);
                     if (set == null || set.isEmpty()) {
                         continue;
                     }
                     int dealCount = 0;
                     for (ZSetOperations.TypedTuple<String> t : set) {
                         if (t.getScore() < now) {
+                            logger.debug("处理EVENT:{}\t Score:{}\t Content:{}",eventName,t.getScore(),t.getValue());
                             eventHandler.accept(t.getValue());
-                            redisTemplate.opsForZSet().remove(schedualName, t.getValue());
+                            redisTemplate.opsForZSet().remove(eventName, t.getValue());
                             dealCount++;
+                        }else {
+                            break;
                         }
                     }
                     if (dealCount == set.size()) {
@@ -87,7 +105,7 @@ public class EventDealer {
     public void add(long delayNum, ChronoUnit timeUnit) {
         OffsetDateTime targetTime = OffsetDateTime.now().plus(delayNum, timeUnit);
         long score = targetTime.toEpochSecond();
-        redisTemplate.opsForZSet().add(schedualName, targetTime.withOffsetSameInstant(ZoneOffset.ofHours(8)).toString(), score);
+        redisTemplate.opsForZSet().add(eventName, targetTime.withOffsetSameInstant(ZoneOffset.ofHours(8)).toString(), score);
     }
 
 }
