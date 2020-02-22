@@ -6,8 +6,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @SpringBootApplication
 @EnableSwagger2
-class springAndKotlinServerApplication
+class SMApplication
 
 fun main(args: Array<String>) {
-	runApplication<springAndKotlinServerApplication>(*args)
+	runApplication<SMApplication>(*args)
 }

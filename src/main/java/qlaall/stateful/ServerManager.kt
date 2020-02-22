@@ -41,7 +41,6 @@ class ServerManager {
         }else{
             //已在线忽略
         }
-
     }
 
     fun playerOffline(userName: String) {
