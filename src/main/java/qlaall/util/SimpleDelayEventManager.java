@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  */
 public class SimpleDelayEventManager {
     private static final Logger logger= LoggerFactory.getLogger(SimpleDelayEventManager.class);
-    public static final Map<String, SimpleDelayEventManager> NAMED_SCHEDUAL = new HashMap<>();
+    public static final Map<String, SimpleDelayEventManager> NAMED_EVENT_MANAGER = new HashMap<>();
     //事件名称
     private String eventName;
     //事件处理器
@@ -40,12 +40,12 @@ public class SimpleDelayEventManager {
 
     //如果已存在，将会返回旧的
     public SimpleDelayEventManager(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate) {
-        SimpleDelayEventManager simpleDelayEventManager = NAMED_SCHEDUAL.get(eventName);
+        SimpleDelayEventManager simpleDelayEventManager = NAMED_EVENT_MANAGER.get(eventName);
         if (simpleDelayEventManager == null) {
             this.eventName = eventName;
             this.eventHandler = o;
             this.redisTemplate = redisTemplate;
-            SimpleDelayEventManager.NAMED_SCHEDUAL.put(eventName, this);
+            SimpleDelayEventManager.NAMED_EVENT_MANAGER.put(eventName, this);
             Thread thread = new Thread(this::start);
             thread.setDaemon(true);
             thread.start();
@@ -53,12 +53,12 @@ public class SimpleDelayEventManager {
     }
     //线程池执行
     public SimpleDelayEventManager(String eventName, Consumer<String> o, RedisTemplate<String, String> redisTemplate, Executor executor) {
-        SimpleDelayEventManager simpleDelayEventManager = NAMED_SCHEDUAL.get(eventName);
+        SimpleDelayEventManager simpleDelayEventManager = NAMED_EVENT_MANAGER.get(eventName);
         if (simpleDelayEventManager == null) {
             this.eventName = eventName;
             this.eventHandler = o;
             this.redisTemplate = redisTemplate;
-            SimpleDelayEventManager.NAMED_SCHEDUAL.put(eventName, this);
+            SimpleDelayEventManager.NAMED_EVENT_MANAGER.put(eventName, this);
             executor.execute(this::start);
         }
     }
@@ -100,7 +100,7 @@ public class SimpleDelayEventManager {
 
     public @Nullable
     SimpleDelayEventManager get(String schedualName){
-        return SimpleDelayEventManager.NAMED_SCHEDUAL.get(schedualName);
+        return SimpleDelayEventManager.NAMED_EVENT_MANAGER.get(schedualName);
     }
     public void add(long delayNum, ChronoUnit timeUnit) {
         OffsetDateTime targetTime = OffsetDateTime.now().plus(delayNum, timeUnit);

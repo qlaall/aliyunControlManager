@@ -57,7 +57,7 @@ class ServerManager {
         val onlinePlayers = onlinePlayers()
         if (onlinePlayers.isEmpty()){
             logger.info("没有用户在线，5分钟后关机")
-            SimpleDelayEventManager.NAMED_SCHEDUAL["SHUT_DOWN_SERVER"]!!.add(5,ChronoUnit.MINUTES)
+            SimpleDelayEventManager.NAMED_EVENT_MANAGER["SHUT_DOWN_SERVER"]!!.add(5,ChronoUnit.MINUTES)
         }
     }
 
