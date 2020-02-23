@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class EcsAgentService {
-//    @Autowired
-//    lateinit var httpService: HttpService
     @Value("\${aliyun.accesskey}")
     lateinit var accessKey:String
     @Value("\${aliyun.secretkey}")
@@ -20,7 +18,7 @@ class EcsAgentService {
         val client = DefaultAcsClient(profile)
         return client.getAcsResponse(DescribeInstancesRequest())
     }
-
+  
     fun stopInstanceByEcsId(instanceId:String):StopInstanceResponse {
         val profile = DefaultProfile.getProfile("cn-zhangjiakou", accessKey, secretKey)
         val client = DefaultAcsClient(profile)
