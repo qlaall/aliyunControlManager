@@ -25,5 +25,8 @@ class PlayerController {
                      @RequestParam("character")character:String){
         serverManager.playerOffline(userName)
     }
-
+    @GetMapping("/list")
+    fun listOnlineNow(): Set<String> {
+        return serverManager.onlinePlayers()
+    }
 }

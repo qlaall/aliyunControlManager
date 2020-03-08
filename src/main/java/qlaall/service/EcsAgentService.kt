@@ -3,11 +3,15 @@ package qlaall.service
 import com.aliyuncs.DefaultAcsClient
 import com.aliyuncs.ecs.model.v20140526.*
 import com.aliyuncs.profile.DefaultProfile
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
 class EcsAgentService {
+    companion object{
+        val logger=LoggerFactory.getLogger(EcsAgentService::class.java)
+    }
     @Value("\${aliyun.accesskey}")
     lateinit var accessKey:String
     @Value("\${aliyun.secretkey}")
@@ -25,6 +29,7 @@ class EcsAgentService {
         val s = StopInstanceRequest().apply {
             this.instanceId = instanceId
         }
+        logger.info("向$instanceId 服务器发送关机信号。")
         return client.getAcsResponse(s)
     }
 
@@ -35,6 +40,7 @@ class EcsAgentService {
             this.instanceId = instanceId
         }
         try {
+            logger.info("向$instanceId 服务器发送开机信号。")
             return client.getAcsResponse(s)
         } catch (e: Exception) {
             e.printStackTrace()
