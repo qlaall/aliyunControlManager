@@ -50,7 +50,7 @@ public class ServerInstanceService {
      * @return
      */
     public boolean startServer(String instId){
-        while (!isTransientStatus(instId)){
+        while (isTransientStatus(instId)){
             try {
                 Thread.sleep(1000L);
             } catch (InterruptedException e) {

@@ -2,6 +2,7 @@ package qlaall.service
 
 import com.aliyuncs.DefaultAcsClient
 import com.aliyuncs.ecs.model.v20140526.*
+import com.aliyuncs.exceptions.ClientException
 import com.aliyuncs.profile.DefaultProfile
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -42,9 +43,16 @@ class EcsAgentService {
         try {
             logger.info("向$instanceId 服务器发送开机信号。")
             return client.getAcsResponse(s)
-        } catch (e: Exception) {
+        } catch (e:ClientException){
+            if (e.errMsg=="The specified instance is in an incorrect status for the requested action; Status of the specified instance is Running but the expected status is in (Stopped)."){
+                //这说明已经正常启动了，所以直接return就可以
+                return StartInstanceResponse()
+            }else{
+                throw e;
+            }
+        }catch (e: Exception) {
             e.printStackTrace()
-            Thread.sleep(50000L)
+            Thread.sleep(5000L)
             return startInstanceByEcsId(instanceId)
         }
     }
