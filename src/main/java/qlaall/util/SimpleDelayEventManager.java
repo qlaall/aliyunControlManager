@@ -92,7 +92,8 @@ public class SimpleDelayEventManager {
                         shouldAgain = false;
                     }
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
+                //无论什么情况都不应该中止这个线程的执行
                 e.printStackTrace();
             }
         }
